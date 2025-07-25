@@ -8,6 +8,7 @@ class BetterAuth {
 
   static final BetterAuth _instance = BetterAuth._();
   static BetterAuth get instance => _instance;
+  static late BetterAuthConfig config;
 
   static bool _isInitialized = false;
 
@@ -21,14 +22,19 @@ class BetterAuth {
     return _client;
   }
 
-  static Future<void> init({
-    required Uri baseUrl,
-    String apiPrefixPath = "/api/auth",
-  }) async {
+  static Future<void> init({required Uri baseUrl}) async {
     if (_isInitialized) return;
     await KVStore.init();
-    await Api.init(apiPrefixPath: apiPrefixPath);
-    Config.initialize(uri: baseUrl);
+    await Api.init();
+    config = BetterAuthConfig(baseUrl: baseUrl);
+    _isInitialized = true;
+  }
+
+  static Future<void> initWithConfig({required BetterAuthConfig config}) async {
+    if (_isInitialized) return;
+    await KVStore.init();
+    await Api.init();
+    BetterAuth.config = config;
     _isInitialized = true;
   }
 }

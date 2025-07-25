@@ -1,31 +1,26 @@
-class Config {
-  static String? _scheme;
-  static String? _host;
-  static int? _port;
+const kDefaultApiPrefixPath = "/api/auth";
+const kDefaultTimeLimit = Duration(seconds: 2);
 
-  static String get scheme {
-    if (_scheme == null) {
-      throw Exception(
-        "Better Auth not initialized correctly (scheme missing).",
-      );
-    }
-    return _scheme!;
-  }
+class BetterAuthConfig {
+  final Uri apiBaseUrl;
+  final Duration timeLimit;
 
-  static String get host {
-    if (_host == null) {
-      throw Exception("Better Auth not initialized correctly (host missing).");
-    }
-    return _host!;
-  }
+  BetterAuthConfig({
+    required Uri baseUrl,
+    String apiPrefixPath = kDefaultApiPrefixPath,
+    this.timeLimit = kDefaultTimeLimit,
+  }) : apiBaseUrl = baseUrl.replace(path: apiPrefixPath);
 
-  static int? get port {
-    return _port;
-  }
+  Uri get baseUrl => Uri(
+    scheme: apiBaseUrl.scheme,
+    host: apiBaseUrl.host,
+    port: apiBaseUrl.port,
+  );
 
-  static void initialize({required Uri uri}) {
-    _scheme = uri.scheme;
-    _host = uri.host;
-    _port = uri.port;
+  Uri resolveApiUrl({String? path, Map<String, dynamic>? queryParameters}) {
+    return apiBaseUrl.replace(
+      pathSegments: [...apiBaseUrl.pathSegments, if (path != null) path],
+      queryParameters: queryParameters,
+    );
   }
 }

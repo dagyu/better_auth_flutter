@@ -14,6 +14,7 @@ class Auth {
         AppEndpoints.signUpWithEmailAndPassword,
         method: MethodType.post,
         body: {"email": email, "password": password, "name": name},
+        isAuthRoute: true,
       );
 
       if (error != null) return (null, error);
@@ -35,6 +36,7 @@ class Auth {
       final (result, error) = await Api.sendRequest(
         AppEndpoints.signInAnonymous,
         method: MethodType.post,
+        isAuthRoute: true,
       );
 
       if (error != null) return (null, error);
@@ -67,6 +69,7 @@ class Auth {
         AppEndpoints.signInEmailOtp,
         method: MethodType.post,
         body: {"email": email, "otp": otp},
+        isAuthRoute: true,
       );
 
       if (error != null) return (null, error);
@@ -98,6 +101,7 @@ class Auth {
         AppEndpoints.signInWithEmailAndPassword,
         method: MethodType.post,
         body: {"email": email, "password": password},
+        isAuthRoute: true,
       );
 
       if (error != null) return (null, error);
@@ -134,6 +138,7 @@ class Auth {
           "idToken": {"token": idToken, "accessToken": accessToken},
           "disableRedirect": true,
         },
+        isAuthRoute: true,
       );
 
       if (error != null) return (null, error);
@@ -187,6 +192,7 @@ class Auth {
           if (requestSignUp != null) "requestSignUp": requestSignUp,
           if (loginHint != null) "loginHint": loginHint,
         },
+        isAuthRoute: true,
       );
 
       if (error != null) return (null, error);

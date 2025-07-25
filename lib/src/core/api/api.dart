@@ -1,22 +1,16 @@
 import "dart:convert";
-import "package:better_auth_flutter/src/core/api/data/enums/error_type.dart";
-import "package:better_auth_flutter/src/core/api/data/enums/method_type.dart";
-import "package:better_auth_flutter/src/core/api/data/models/api_failure.dart";
-import "package:better_auth_flutter/src/core/config/config.dart";
+import "package:better_auth_flutter/better_auth_flutter.dart";
 import "package:cookie_jar/cookie_jar.dart";
 import "package:http/http.dart" as http;
 import "package:path_provider/path_provider.dart";
-import 'dart:developer';
+import "dart:developer";
 
 class Api {
   static final hc = http.Client();
 
-  static late final String apiPrefixPath;
-
   static late PersistCookieJar _cookieJar;
 
-  static Future<void> init({String apiPrefixPath = "/api/auth"}) async {
-    Api.apiPrefixPath = apiPrefixPath;
+  static Future<void> init() async {
     try {
       final cacheDir = await getApplicationCacheDirectory();
       _cookieJar = PersistCookieJar(
@@ -27,10 +21,8 @@ class Api {
     }
   }
 
-  static Future<String?> getCookieHeader({Uri? uri}) async {
-    final cookies = await _cookieJar.loadForRequest(
-      uri ?? Uri(scheme: Config.scheme, host: Config.host),
-    );
+  static Future<String?> getCookieHeader() async {
+    final cookies = await _cookieJar.loadForRequest(BetterAuth.config.baseUrl);
     if (cookies.isEmpty) return null;
     return cookies.map((c) => "${c.name}=${c.value}").join("; ");
   }
@@ -43,26 +35,21 @@ class Api {
     Map<String, String>? headers,
     Map<String, dynamic>? queryParameters,
     int retry = 0,
+    bool isAuthRoute = false,
   }) async {
     headers ??= {};
-    host ??= Config.host;
 
     headers.addAll({
       "Accept": "application/json",
       "Content-Type": "application/json",
     });
 
-    final Uri uri = Uri(
-      scheme: Config.scheme,
-      host: host,
-      path: "$apiPrefixPath$path",
+    final Uri uri = BetterAuth.config.resolveApiUrl(
+      path: path,
       queryParameters: queryParameters,
-      port: Config.port,
     );
 
-    final cookies = await getCookieHeader(
-      uri: Uri(scheme: uri.scheme, host: uri.host),
-    );
+    final cookies = await getCookieHeader();
     if (cookies != null) {
       headers["Cookie"] = cookies;
     }
@@ -72,14 +59,14 @@ class Api {
     try {
       switch (method) {
         case MethodType.get:
-          response = await hc.get(uri, headers: headers);
+          response = await hc
+              .get(uri, headers: headers)
+              .timeout(BetterAuth.config.timeLimit);
           break;
         case MethodType.post:
-          response = await hc.post(
-            uri,
-            headers: headers,
-            body: jsonEncode(body),
-          );
+          response = await hc
+              .post(uri, headers: headers, body: jsonEncode(body))
+              .timeout(BetterAuth.config.timeLimit);
           break;
       }
     } catch (e) {
@@ -93,12 +80,11 @@ class Api {
             return Cookie.fromSetCookieValue(cookieString.trim());
           }).toList();
 
-      bool isAuthRoute = uri.path.contains(apiPrefixPath);
       if (isAuthRoute) {
-        final tempUri = Uri(scheme: uri.scheme, host: uri.host);
-        await _cookieJar.saveFromResponse(tempUri, cookiesList);
-      } else {
-        await _cookieJar.saveFromResponse(uri, cookiesList);
+        await _cookieJar.saveFromResponse(
+          BetterAuth.config.baseUrl,
+          cookiesList,
+        );
       }
     }
 
