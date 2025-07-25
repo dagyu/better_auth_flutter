@@ -27,6 +27,14 @@ class Api {
     }
   }
 
+  static Future<String?> getCookieHeader({Uri? uri}) async {
+    final cookies = await _cookieJar.loadForRequest(
+      uri ?? Uri(scheme: Config.scheme, host: Config.host),
+    );
+    if (cookies.isEmpty) return null;
+    return cookies.map((c) => "${c.name}=${c.value}").join("; ");
+  }
+
   static Future<(dynamic, BetterAuthFailure?)> sendRequest(
     String path, {
     required MethodType method,
@@ -52,11 +60,11 @@ class Api {
       port: Config.port,
     );
 
-    final cookies = await _cookieJar.loadForRequest(
-      Uri(scheme: uri.scheme, host: uri.host),
+    final cookies = await getCookieHeader(
+      uri: Uri(scheme: uri.scheme, host: uri.host),
     );
-    if (cookies.isNotEmpty) {
-      headers["Cookie"] = cookies.map((c) => "${c.name}=${c.value}").join("; ");
+    if (cookies != null) {
+      headers["Cookie"] = cookies;
     }
 
     final http.Response response;
