@@ -63,6 +63,9 @@ class BetterAuthClient {
   })
   signInWithEmailAndPassword = Auth.signInWithEmailAndPassword;
 
+  Future<(User?, BetterAuthFailure?)> Function() signInAnonymous =
+      Auth.signInAnonymous;
+
   Future<BetterAuthFailure?> Function() signOut = Auth.signOut;
 
   Future<(User?, BetterAuthFailure?)> Function({

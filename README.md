@@ -67,6 +67,13 @@ final (user, error) = await BetterAuth.instance.client.signInWithEmailAndPasswor
 final error = await BetterAuth.instance.client.signOut();
 ```
 
+### Anonymous Sign-In
+
+```dart
+// Sign in anonymously
+final (user, error) = await BetterAuth.instance.client.signInAnonymous();
+```
+
 ### OAuth Login
 
 For social authentication, you have two main approaches:
