@@ -11,9 +11,12 @@ import 'dart:developer';
 class Api {
   static final hc = http.Client();
 
+  static late final String apiPrefixPath;
+
   static late PersistCookieJar _cookieJar;
 
-  static Future<void> init() async {
+  static Future<void> init({String apiPrefixPath = "/api/auth"}) async {
+    Api.apiPrefixPath = apiPrefixPath;
     try {
       final cacheDir = await getApplicationCacheDirectory();
       _cookieJar = PersistCookieJar(
@@ -44,7 +47,7 @@ class Api {
     final Uri uri = Uri(
       scheme: Config.scheme,
       host: host,
-      path: "/api/auth$path",
+      path: "$apiPrefixPath$path",
       queryParameters: queryParameters,
       port: Config.port,
     );
@@ -82,7 +85,7 @@ class Api {
             return Cookie.fromSetCookieValue(cookieString.trim());
           }).toList();
 
-      bool isAuthRoute = uri.path.contains("/api/auth");
+      bool isAuthRoute = uri.path.contains(apiPrefixPath);
       if (isAuthRoute) {
         final tempUri = Uri(scheme: uri.scheme, host: uri.host);
         await _cookieJar.saveFromResponse(tempUri, cookiesList);
