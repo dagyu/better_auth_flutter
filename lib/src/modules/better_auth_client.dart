@@ -66,6 +66,12 @@ class BetterAuthClient {
   Future<(User?, BetterAuthFailure?)> Function() signInAnonymous =
       Auth.signInAnonymous;
 
+  Future<(User?, BetterAuthFailure?)> Function({
+    required String email,
+    required String otp,
+  })
+  signInEmailOtp = Auth.signInEmailOtp;
+
   Future<BetterAuthFailure?> Function() signOut = Auth.signOut;
 
   Future<(User?, BetterAuthFailure?)> Function({
@@ -96,6 +102,9 @@ class BetterAuthClient {
 
   Future<BetterAuthFailure?> Function({required String verificationToken})
   verifyEmail = Verification.verifyEmail;
+
+  Future<BetterAuthFailure?> Function({required String email})
+  sendVerificationOtp = Verification.sendVerificationOtp;
 
   Future<(List<Account>?, BetterAuthFailure?)> Function() listAccounts =
       Accounts.listAccounts;

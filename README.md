@@ -74,6 +74,18 @@ final error = await BetterAuth.instance.client.signOut();
 final (user, error) = await BetterAuth.instance.client.signInAnonymous();
 ```
 
+### Email OTP Sign-In
+
+```dart
+// Send OTP to email
+final (result, error) = await BetterAuth.instance.client.sendVerificationOtp("user@example.com");
+// Sign in with OTP
+final (user, error) = await BetterAuth.instance.client.signInWithOtp(
+  email: "user@example.com",
+  otp: "123456",
+);
+```
+
 ### OAuth Login
 
 For social authentication, you have two main approaches:
